@@ -11,7 +11,7 @@ use Yii;
  * Class LogController
  *
  * Контроллер для загрузки логов NginX. У контроллера есть 1 экшен Upload и вспомогательные protected методы в
- * которых реализован вся функционал, разбитый на логические части
+ * которых реализован весь функционал, разбитый на логические части
  *
  * @package app\commands
  */
@@ -80,7 +80,7 @@ class LogController extends Controller
         $patternUserAgent = '(".*")';
         $pattern = '#' . $patternIp . '.*' . $patternDate . '.*' .$patternUrl . '.*' . $patternUserAgent . '#';
         preg_match($pattern, $str, $matches);
-        
+
         $ip = (isset($matches[1]) && $matches[1]) ? $matches[1] : null;
         $date = (isset($matches[2]) && $matches[2]) ? trim($matches[2], '[]') : null;
         $date = $this->convertToUnix($date);
@@ -94,10 +94,11 @@ class LogController extends Controller
         $robot = $agent->robot();
 
         $os = $agent->platform() ? $agent->platform() : $robot;
-        $os = ($os == 0) ? null : $os;
+        $os = !$os  ? 'Undefined' : $os;
+
 
         $browser = $agent->browser() ? $agent->browser() : $robot;
-        $browser = ($browser == 0) ? null : $browser;
+        $browser = !$browser  ? 'Undefined' : $browser;
 
         return ['ip' => $ip, 'date' => $date, 'url' => $url, 'os'=> $os, 'x_bix' => $xBit, 'browser' => $browser];
     }
@@ -140,11 +141,11 @@ class LogController extends Controller
         $batch = [];
         foreach ($this->data as $key => $row) {
             $batch[] = $row;
-            if ( !isset($this->data[1 + $key]) ) { // 2 завписываем остатки
+            if ( !isset($this->data[1 + $key]) ) { // 2 записываем остатки
                 $this->saveInDB($batch);
                 $batch = [];
             }
-            if (count($batch) == $rowsForOnce) { // 1 завписываем по $rowsForOnce штук за раз
+            if (count($batch) == $rowsForOnce) { // 1 записываем по $rowsForOnce штук за раз
                 $this->saveInDB($batch);
                 $batch = [];
             }
